@@ -6,9 +6,11 @@ export interface Props {
   nextURL?: string;
   style?: string;
   class?: string;
+  id?: string;
+  baseURL?: string; 
 }
 
-const props = Astro.props;
+const { baseURL = "", ...props } = Astro.props; // Set a default value for baseURL
 
 const maxVisiblePages = 4;
 let pages: (string | number)[] = [];
@@ -34,11 +36,8 @@ if (props.lastPage <= maxVisiblePages) {
 }
 ---
 
-<div
-  class="flex flex-row justify-center space-x-4"
-  style={props.style}
-  class:list={[props.class]}
->
+<div class="flex flex-row justify-center space-x-4" style={props.style}>
+  
   <a
     href={props.prevURL}
     class:list={[props.prevURL ? "button" : "button-disabled"]}
@@ -46,17 +45,19 @@ if (props.lastPage <= maxVisiblePages) {
     <span>＜</span>
   </a>
 
-  <div class="flex flex-row space-x-2">
+  <div id="pagination-buttons" class="flex flex-row space-x-2">
     {
-      pages.map((page) =>
-        page === "..." ? (
-          <span class="text-md text-[var(--primary-color)]">...</span>
+      pages.map((p) =>
+        p === "..." ? (
+          <span class="text-md text-[var(--primary-color)]">…</span>
         ) : (
           <a
-            href={page === 1 ? "/" : `/${page}`}
-            class:list={[page === props.current ? "button-selected" : "button"]}
+            href={p === 1 ? baseURL || "/" : `${baseURL}/${p}`}
+            class:list={[
+              p === props.current ? "button-selected" : "button",
+            ]}
           >
-            <span>{page}</span>
+            <span>{p}</span>
           </a>
         ),
       )
@@ -69,7 +70,9 @@ if (props.lastPage <= maxVisiblePages) {
   >
     <span>＞</span>
   </a>
-</div>
+
+</div> 
+
 <style>
   .button {
     @apply flex h-10 w-10 flex-row items-center rounded-lg bg-[var(--card-color)] p-1 transition-all hover:brightness-90;
@@ -90,9 +93,11 @@ if (props.lastPage <= maxVisiblePages) {
   }
 
   .button-selected {
-    @apply flex h-10 w-10 cursor-not-allowed flex-row items-center rounded-lg bg-[var(--primary-color)] p-1;
+    @apply flex h-10 w-10 cursor-not-allowed flex-row items-center rounded-lg bg-[var(--card-color)] p-1;
+    @apply border-2 border-[var(--primary-color)];
     pointer-events: none;
   }
+
 
   .button-selected span {
     @apply w-full text-center text-[var(--card-color)];
