@@ -1,0 +1,66 @@
+---
+import Layout from "../layouts/MainLayout.astro";
+import { GetCategories, GetTags } from "../utils/content";
+import { IdToSlug } from "../utils/hash";
+
+const categories = await GetCategories();
+const tags = await GetTags();
+const categoryKeys = [...categories.keys()];
+const tagKeys = [...tags.keys()];
+---
+
+<Layout title="Explore" subTitle="Browse all categories and tags">
+  <div class="space-y-12">
+    <section>
+      <h2 class="section-title">Categories</h2>
+      <ul class="mt-4 flex flex-wrap gap-4">
+        {categoryKeys.map(category => {
+          const categoryData = categories.get(category)!;
+          return (
+            <li>
+              <a href={`/categories/${IdToSlug(categoryData.name)}`} class="category-chip">
+                <span>{categoryData.name}</span>
+                <span class="count">{categoryData.posts.length}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+
+    <section>
+      <h2 class="section-title">Tags</h2>
+      <ul class="mt-4 flex flex-wrap gap-4">
+        {tagKeys.map(tag => {
+          const tagData = tags.get(tag)!;
+          return (
+            <li>
+              <a href={`/tags/${IdToSlug(tagData.name)}`} class="category-chip">
+                <span>#{tagData.name}</span>
+                <span class="count">{tagData.posts.length}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  </div>
+</Layout>
+
+<style>
+
+.section-title {
+  @apply text-3xl font-bold text-[var(--text-color)];
+  padding-bottom: 0.5rem; 
+}
+
+  .category-chip {
+    @apply flex items-center space-x-2 rounded-lg bg-[var(--card-color)] px-4 py-2 text-lg text-[var(--text-color)] transition-all duration-200;
+    @apply hover:bg-[var(--primary-color-lighten)] hover:text-[var(--primary-color)] hover:scale-105;
+  }
+
+  .category-chip .count {
+    @apply rounded-full bg-[var(--background-color)] px-2.5 py-0.5 text-sm font-semibold text-[var(--primary-color)];
+  }
+
+</style>
