@@ -1,4 +1,5 @@
 ---
+import { Image as AstroImage} from "astro:assets";
 import { IdToSlug } from "../utils/hash";
 import { Icon } from "astro-icon/components";
 import PostCardInfoIcon from "./widgets/PostCardInfoIcon.astro";
@@ -15,7 +16,7 @@ export interface Props {
   category?: string;
   tags?: string[];
   description?: string;
-  image?: string;
+  image?: ImageMetadata;
   readingMetadata: { time: number; wordCount: number };
 }
 
@@ -26,17 +27,29 @@ const { time, wordCount } = props.readingMetadata;
 ---
 
 <div
-  class="mx-3 flex flex-col rounded-3xl bg-[var(--card-color)] lg:mx-0 lg:h-[212px]"
+  class="mx-3 flex flex-col rounded-3xl bg-[var(--card-color)] lg:mx-0 lg:h-[212px] transition-all duration-300 ease-in-out hover:scale-[1.02] hover:bg-[var(--primary-color-lighten)]"
 >
   <a
     href={contentUrl}
     class="relative h-[128px] transition-all hover:brightness-75 lg:hidden"
   >
-    <img
-      class="lozad absolute left-0 top-0 h-full w-full rounded-t-3xl object-cover lg:hidden"
-      data-src={props.image ?? GetCoverURLForUnspecifiedEntry(entryID)}
-      alt="CoverPost"
-    />
+    {
+      props.image ? (
+        <AstroImage
+          src={props.image}
+          alt={`Cover for ${props.title}`}
+          widths={[240, 480]}
+          sizes="(max-width: 600px) 240px, 480px"
+          class="absolute left-0 top-0 h-full w-full rounded-t-3xl object-cover"
+        />
+      ) : (
+        <img
+          src={GetCoverURLForUnspecifiedEntry(entryID)}
+          alt="Default cover post"
+          class="absolute left-0 top-0 h-full w-full rounded-t-3xl object-cover"
+        />
+      )
+    }
     <div class="absolute bottom-2 w-full">
       <div class="mx-2 flex flex-row justify-between">
         <div
@@ -47,22 +60,21 @@ const { time, wordCount } = props.readingMetadata;
             {formatDate(props.published, YukinaConfig.locale)}
           </span>
         </div>
-        {
-          props.category && (
-            <div class="flex flex-row items-center space-x-2 rounded-md bg-black/50 px-1.5 py-0.5 text-[var(--primary-color-lighten)] dark:text-[var(--text-color)]">
-              <Icon name="dashicons:category" />
-              <span class="max-w-28 select-none truncate">
-                {props.category}
-              </span>
-            </div>
-          )
-        }
+        {props.category && (
+          <div class="flex flex-row items-center space-x-2 rounded-md bg-black/50 px-1.5 py-0.5 text-[var(--primary-color-lighten)] dark:text-[var(--text-color)]">
+            <Icon name="dashicons:category" />
+            <span class="max-w-28 select-none truncate">
+              {props.category}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   </a>
+
   <div class="flex h-[128px] flex-row lg:h-[212px]">
     <div
-      class="flex w-full flex-col justify-between pb-5 pl-5 pr-6 pt-3 lg:w-[calc(var(--page-width-lg)-404px)] lg:py-7 lg:pr-0 xl:w-[calc(var(--page-width-xl)-676px)]"
+      class="flex w-3/5 min-w-0 flex-col justify-between pb-5 pl-5 pr-6 pt-3 lg:py-7 lg:pr-0"
     >
       <div class="flex w-full flex-row items-center">
         <div
@@ -85,42 +97,36 @@ const { time, wordCount } = props.readingMetadata;
               {formatDate(props.published, YukinaConfig.locale)}
             </span>
           </li>
-          {
-            props.category && (
-              <li class="data space-x-1.5">
-                <PostCardInfoIcon name="dashicons:category" />
-                <a
-                  class="select-none rounded-md px-1.5 py-0.5 text-[var(--text-color-lighten)] transition-all hover:bg-[var(--primary-color-lighten)] hover:text-[var(--primary-color)]"
-                  href={`/categories/${IdToSlug(props.category)}`}
-                >
-                  {props.category}
-                </a>
-              </li>
-            )
-          }
-          <li
-            class="hidden items-center overflow-clip md:block lg:hidden xl:block"
-          >
-            {
-              props.tags && (
-                <div class="data space-x-2">
-                  <PostCardInfoIcon name="mdi:tag-outline" />
-                  <ul class="flex flex-row items-center space-x-1">
-                    {props.tags.slice(0, 3).map((tag, index) => (
-                      <li class="flex select-none flex-row items-center text-[var(--text-color-lighten)]">
-                        {index > 0 && <span class="pr-1">/</span>}
-                        <a
-                          class="rounded-md px-1.5 py-0.5 transition-all hover:bg-[var(--primary-color-lighten)] hover:text-[var(--primary-color)]"
-                          href={`/tags/${IdToSlug(tag)}`}
-                        >
-                          {tag}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
-            }
+          {props.category && (
+            <li class="data space-x-1.5">
+              <PostCardInfoIcon name="dashicons:category" />
+              <a
+                class="select-none rounded-md px-1.5 py-0.5 text-[var(--text-color-lighten)] transition-all hover:bg-[var(--primary-color-lighten)] hover:text-[var(--primary-color)]"
+                href={`/categories/${IdToSlug(props.category)}`}
+              >
+                {props.category}
+              </a>
+            </li>
+          )}
+          <li class="hidden items-center overflow-clip md:flex">
+            {props.tags && (
+              <div class="data space-x-2">
+                <PostCardInfoIcon name="mdi:tag-outline" />
+                <ul class="flex flex-row items-center space-x-1">
+                  {props.tags.slice(0, 3).map((tag, index) => (
+                    <li class="flex select-none flex-row items-center text-[var(--text-color-lighten)]">
+                      {index > 0 && <span class="pr-1">/</span>}
+                      <a
+                        class="rounded-md px-1.5 py-0.5 transition-all hover:bg-[var(--primary-color-lighten)] hover:text-[var(--primary-color)]"
+                        href={`/tags/${IdToSlug(tag)}`}
+                      >
+                        {tag}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </li>
         </ul>
       </div>
@@ -130,27 +136,34 @@ const { time, wordCount } = props.readingMetadata;
       <div>
         <div class="select-none lg:ml-2">
           <div class="reading-time">
-            <span>
-              {wordCount}
-              {i18n(I18nKeys.post_card_words)}
-            </span>
+            <span>{wordCount} {i18n(I18nKeys.post_card_words)}</span>
             <span>|</span>
-            <span>
-              {time}
-              {i18n(I18nKeys.post_card_minutes)}
-            </span>
+            <span>{time} {i18n(I18nKeys.post_card_minutes)}</span>
           </div>
         </div>
       </div>
     </div>
-    <div class="cover-container">
+
+    <div class="cover-container w-2/5">
       <a href={contentUrl} class="cover-wrapper">
         <Icon class="right-icon" name="cuida:caret-right-outline" size={96} />
-        <img
-          class="lozad h-[212px] w-[404px] select-none rounded-r-3xl object-cover dark:brightness-90"
-          data-src={props.image ?? GetCoverURLForUnspecifiedEntry(entryID)}
-          alt="PostCover"
-        />
+        {
+          props.image ? (
+            <AstroImage
+              src={props.image}
+              alt={`Cover for ${props.title}`}
+              widths={[210, 420]}
+              sizes="(max-width: 1200px) 210px, 420px"
+              class="h-full w-full select-none rounded-r-3xl object-cover dark:brightness-90"
+            />
+          ) : (
+            <img
+              src={GetCoverURLForUnspecifiedEntry(entryID)}
+              alt="Default post cover"
+              class="h-full w-full select-none rounded-r-3xl object-cover dark:brightness-90"
+            />
+          )
+        }
       </a>
     </div>
   </div>
@@ -158,7 +171,6 @@ const { time, wordCount } = props.readingMetadata;
 <style>
   .title {
     @apply flex w-full flex-row items-center space-x-1 align-top text-xl font-semibold text-[var(--text-color)] lg:text-2xl;
-    @apply transition-all hover:text-[var(--primary-color)];
     font-family: var(--primary-font);
   }
 
@@ -183,8 +195,8 @@ const { time, wordCount } = props.readingMetadata;
   }
 
   .cover-container {
-    @apply relative ml-2 hidden h-[212px] min-w-[404px] max-w-[404px] select-none lg:block;
-    clip-path: polygon(0 0%, 100% 0%, 100% 100%, 10% 100%);
+  @apply relative ml-2 hidden h-[212px] select-none lg:block;
+  clip-path: polygon(0 0%, 100% 0%, 100% 100%, 10% 100%);
   }
 
   .cover-wrapper {
