@@ -15,7 +15,7 @@ interface Configuration {
 
   username: string;
   sign: string;
-  avatarUrl: string;
+  avatarUrl: string | ImageMetadata;
 
   socialLinks: { icon: string; link: string }[];
 
@@ -24,7 +24,7 @@ interface Configuration {
   maxFooterCategoryChip: number;
   maxFooterTagChip: number;
 
-  banners: string[];
+  banners: (string | ImageMetadata)[];
 
   slugMode: "HASH" | "RAW";
 
