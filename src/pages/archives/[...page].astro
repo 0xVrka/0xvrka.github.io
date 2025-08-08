@@ -1,0 +1,39 @@
+---
+import PostArchiveLayout from "../../layouts/PostArchiveLayout.astro";
+import I18nKeys from "../../locales/keys";
+import { i18n } from "../../locales/translation";
+
+import type { PaginateFunction } from "astro";
+import { GetSortedPosts } from "../../utils/content";
+
+export interface Archive {
+  title: string;
+  id: string;
+  date: Date;
+  tags?: string[];
+}
+
+export async function getStaticPaths({
+  paginate,
+}: {
+  paginate: PaginateFunction;
+}) {
+  const allPosts = await GetSortedPosts();
+  const allPostsAsArchive: Archive[] = allPosts
+    .filter(post => post.data.published)
+    .map(post => ({
+      title: post.data.title,
+      id: post.id,
+      date: new Date(post.data.published),
+      tags: post.data.tags,
+    }));
+  return paginate(allPostsAsArchive, { pageSize: 20 });
+}
+
+const { page } = Astro.props;
+---
+<PostArchiveLayout
+  page={page}
+  title={i18n(I18nKeys.pages_archive_archive)}
+  baseURL="/archives"
+/>
