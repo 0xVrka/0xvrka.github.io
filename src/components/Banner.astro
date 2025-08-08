@@ -1,11 +1,12 @@
 ---
 import YukinaConfig from "../../yukina.config";
 import { GetCoverURLForUnspecifiedEntry } from "../utils/cover";
+import { Image } from "astro:assets";
 
 export interface Props {
   title?: string;
   subTitle?: string;
-  bannerImage?: string;
+  bannerImage?: string | ImageMetadata;
   slug?: string;
 }
 const { title, subTitle, bannerImage, slug } = Astro.props;
@@ -37,10 +38,13 @@ const carouselAnimationTime = `${carouselImgsList.length * 6}s`;
     {
       hasHeaderImg && (
         <div class="cover">
-          <img
-            class="item lozad"
-            data-src={bannerImage ?? GetCoverURLForUnspecifiedEntry(slug ?? "")}
-            alt="PostCoverr"
+          <Image
+            src={bannerImage}
+            alt={title ?? YukinaConfig.title}
+            widths={[400, 800, 1200, 1600, 2400]}
+            sizes="(max-width: 768px) 100vw, 1264px"
+            loading="eager"
+            class="item"
           />
         </div>
       )
@@ -155,13 +159,13 @@ const carouselAnimationTime = `${carouselImgsList.length * 6}s`;
 
   .carousel::before {
     @apply absolute left-0 top-0 z-10 block h-full w-full bg-black/25 transition-all content-[''];
-    @apply dark:bg-black/30;
+    @apply dark:bg-black/70;
   }
 
   .carousel .item {
     @apply absolute left-0 top-0 z-0 h-full w-full origin-center bg-cover bg-center bg-no-repeat opacity-0;
-    animation: carousel-animation var(--carouselAnimationTime) linear infinite
-      0s;
+    /* animation: carousel-animation var(--carouselAnimationTime) linear infinite 0s; */
+    animation: none;
     backface-visibility: hidden;
     transform-style: preserve-3d;
   }
@@ -172,7 +176,7 @@ const carouselAnimationTime = `${carouselImgsList.length * 6}s`;
 
   .cover::before {
     @apply absolute left-0 top-0 z-10 block h-full w-full bg-black/25 transition-all content-[''];
-    @apply dark:bg-black/30;
+    @apply dark:bg-black/70;
   }
 
   .cover .item {
@@ -182,10 +186,11 @@ const carouselAnimationTime = `${carouselImgsList.length * 6}s`;
   .title {
     @apply mt-8 text-center font-bold text-[var(--title-color)] drop-shadow-lg lg:mt-1;
     font-family: var(--title-font);
+    /* text-shadow: 0px 2px 80px rgba(0, 0, 0, 1); */
   }
 
   .title-index {
-    @apply mb-0 text-6xl leading-[5rem] lg:mb-1 lg:text-8xl;
+    @apply mb-0 text-5xl leading-[5rem] lg:mb-1 lg:text-7xl;
   }
 
   .title-normal {
@@ -195,16 +200,18 @@ const carouselAnimationTime = `${carouselImgsList.length * 6}s`;
   .subtitle {
     @apply text-center text-xl text-[var(--subtitle-color)] drop-shadow-md lg:text-3xl;
     font-family: var(--subtitle-font);
+    /* text-shadow: 0px 1px 6px rgba(0, 0, 0, 0.8); */
   }
 
   .waves {
-    @apply absolute -bottom-[1px] h-[10vh] max-h-[9.375rem] min-h-[3.125rem] w-full;
-    @apply md:h-[15vh];
+    @apply absolute -bottom-[1px] h-[5vh] max-h-[9.375rem] min-h-[3.125rem] w-full;
+    @apply md:h-[8vh];
   }
 
   .waves > .parallax use {
     @apply fill-[var(--background-color)];
     animation: wave 25s cubic-bezier(0.5, 0.5, 0.45, 0.5) infinite;
+    /* animation: none; */
   }
 
   @keyframes wave {
