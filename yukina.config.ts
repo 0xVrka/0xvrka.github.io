@@ -1,10 +1,13 @@
 import I18nKeys from "./src/locales/keys";
 import type { Configuration } from "./src/types/config";
+import homeBanner from "./src/assets/images/banner.jpg";
+// import avatar from "./src/assets/images/vrka.png";
+
 
 const YukinaConfig: Configuration = {
-  title: "Yukina",
-  subTitle: "Yukina Template Demo Site",
-  brandTitle: "Yukina",
+  title: "",
+  subTitle: "",
+  brandTitle: "0xVṛka",
 
   description: "Demo Site",
 
@@ -19,7 +22,7 @@ const YukinaConfig: Configuration = {
     },
     {
       nameKey: I18nKeys.nav_bar_archive,
-      href: "/archive",
+      href: "/archives",
     },
     {
       nameKey: I18nKeys.nav_bar_about,
@@ -27,26 +30,26 @@ const YukinaConfig: Configuration = {
     },
     {
       nameKey: I18nKeys.nav_bar_github,
-      href: "https://github.com/WhitePaper233/yukina",
+      href: "/explore",
     },
   ],
 
-  username: "WhitePaper 白芷",
-  sign: "Ad Astra Per Aspera.",
-  avatarUrl: "https://s2.loli.net/2025/01/25/FPpTrQSezM8ivbl.webp",
+  username: "0xVṛka",
+  sign: "Security Enthusiast",
+  avatarUrl: homeBanner,
   socialLinks: [
-    {
-      icon: "line-md:github-loop",
-      link: "https://github.com/WhitePaper233",
-    },
-    {
-      icon: "mingcute:bilibili-line",
-      link: "https://space.bilibili.com/22433608",
-    },
-    {
-      icon: "mingcute:netease-music-line",
-      link: "https://music.163.com/#/user/home?id=125291648",
-    },
+  {
+    icon: "line-md:github-loop",
+    link: "https://github.com/0xVrka",
+  },
+  {
+    icon: "mdi:medium",
+    link: "https://medium.com/@0xVrka", 
+  },
+  {
+    icon: "mdi:linkedin",
+    link: "https://www.linkedin.com/in/haidarakita/", 
+  },
   ],
   maxSidebarCategoryChip: 6, // It is recommended to set it to a common multiple of 2 and 3
   maxSidebarTagChip: 12,
@@ -54,6 +57,7 @@ const YukinaConfig: Configuration = {
   maxFooterTagChip: 24,
 
   banners: [
+    homeBanner,
     "https://s2.loli.net/2025/01/25/PBvHFjr5yDu6t4a.webp",
     "https://s2.loli.net/2025/01/25/6bKcwHZigzlM4mJ.webp",
     "https://s2.loli.net/2025/01/25/H9WgEK6qNTcpFiS.webp",
