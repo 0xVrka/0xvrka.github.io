@@ -53,11 +53,31 @@
     });
   };
 
-  // init
+let lastYPos = 0;
+let bannerHeight = 0;
+let navBarElement: HTMLElement | null = null;
+const updateNavElements = () => {
+  navBarElement = document.getElementById("nav");
+  const bannerElement = document.getElementById("banner");
+  bannerHeight = bannerElement ? bannerElement.offsetHeight - 50 : 0;
+};
+
+window.addEventListener("scroll", () => {
+  if (!navBarElement) return;
+
+  if (bannerHeight < window.scrollY && window.scrollY > lastYPos) {
+    navBarElement.style.top = "-72px";
+  } else {
+    navBarElement.style.top = "0";
+  }
+  lastYPos = window.scrollY;
+});
+
   const setup = () => {
     setupUrlAnchor();
     setupLozad();
     setupScrollBar();
+    updateNavElements();
   };
 
   document.addEventListener("DOMContentLoaded", setup);
