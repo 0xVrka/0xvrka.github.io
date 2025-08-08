@@ -1,6 +1,7 @@
 ---
 import { formatDate } from "../../utils/date";
 import YukinaConfig from "../../../yukina.config";
+import { IdToSlug } from "../../utils/hash";
 
 export interface Props {
   id: string;
@@ -10,11 +11,12 @@ export interface Props {
 }
 
 const { id, title, pubilished } = Astro.props;
+const postUrl = `/posts/${IdToSlug(id)}`;
 ---
 
 <div class="item">
   <a
-    href={id}
+    href={postUrl}
     class="flex w-full select-none flex-row items-center rounded-md py-2 transition-colors hover:bg-[var(--primary-color-lighten)]"
   >
     <div class="flex w-[15%] flex-row justify-end md:w-[10%]">
