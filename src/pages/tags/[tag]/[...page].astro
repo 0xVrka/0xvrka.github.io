@@ -1,0 +1,36 @@
+---
+// src/pages/tags/[tag]/[...page].astro
+
+import PostArchiveLayout from "../../../layouts/PostArchiveLayout.astro";
+import I18nKeys from "../../../locales/keys";
+import { i18n } from "../../../locales/translation";
+import { GetTags } from "../../../utils/content";
+import type { GetStaticPathsOptions } from "astro";
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const tags = await GetTags();
+  const paths = [];
+
+  for (const [key, value] of tags.entries()) {
+    paths.push(
+      ...paginate(value.posts, {
+        params: { tag: key },
+        props: { tagName: value.name },
+        pageSize: 20,
+      }),
+    );
+  }
+
+  return paths;
+}
+
+const { page, tagName } = Astro.props;
+const { tag } = Astro.params;
+---
+
+<PostArchiveLayout
+  page={page}
+  title={`#${tagName}`}
+  subTitle={i18n(I18nKeys.pages_tags_archive)}
+  baseURL={`/tags/${tag}`}
+/>
