@@ -20,14 +20,16 @@ import "overlayscrollbars/overlayscrollbars.css";
     --card-color-transparent: oklch(100% 0 0 / 85%);
     --background-color: oklch(97% 0.01 var(--hue));
 
-    --brand-font: "Raleway", "Noto Sans SC", sans-serif;
+    /* --brand-font: "Raleway", "Noto Sans SC", sans-serif; */
+    --brand-font: "Inter", "Noto Sans SC", sans-serif;
+
     --primary-font: "Noto Sans SC", sans-serif;
     --code-font: "JetBrains Mono", "Fira Code", monospace;
 
     --page-width-lg: 992px;
     --page-width-xl: 1264px;
 
-    --banner-height: 55vh;
+    --banner-height: 50vh;
     --title-font: var(--brand-font);
     --title-color: oklch(100% 0 0 / 95%);
     --subtitle-font: var(--brand-font);
@@ -37,7 +39,30 @@ import "overlayscrollbars/overlayscrollbars.css";
     --onload-animation-interval: 100ms;
   }
 
-  :root.dark {
+    :root.dark {
+    --hue: 0; 
+    --primary-color: oklch(98% 0 0);
+    --primary-color-lighten: oklch(30% 0 0);
+    --primary-color-hover: oklch(30% 0 0);
+    --text-color: oklch(95% 0 0);
+    --text-color-lighten: oklch(65% 0 0);
+    --card-color: oklch(20% 0 0);
+    --card-color-transparent: oklch(15% 0 0 / 85%);
+    --background-color: oklch(10% 0 0);
+  }
+
+  html {
+    font-size: 90%;
+  }
+
+  .swup-progress-bar {
+    height: 5px;
+    background-color: var(--primary-color);
+  }
+  
+</style>
+
+    <!-- :root.dark {
     --primary-color: oklch(70% 0.125 var(--hue));
     --primary-color-lighten: oklch(40% 0.04 var(--hue));
     --primary-color-hover: oklch(20% 0.015 var(--hue));
@@ -47,10 +72,6 @@ import "overlayscrollbars/overlayscrollbars.css";
     --card-color-lighten: oklch(40% 0.04 var(--hue));
     --card-color-transparent: oklch(30% 0.025 var(--hue) / 85%);
     --background-color: oklch(17.5% 0.015 var(--hue));
-  }
+  } -->
 
-  .swup-progress-bar {
-    height: 5px;
-    background-color: var(--primary-color);
-  }
-</style>
+
