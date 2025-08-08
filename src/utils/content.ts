@@ -127,11 +127,15 @@ export async function GetTags() {
       }
       tags.get(tagSlug)!.posts.push({
         title: post.data.title,
-        id: `/posts/${IdToSlug(post.id)}`,
+        id: post.id,
         date: new Date(post.data.published),
         tags: post.data.tags,
       });
     });
+  });
+
+  tags.forEach((value) => {
+    value.posts.sort((a, b) => (a.date > b.date ? -1 : 1));
   });
 
   return tags;
@@ -165,10 +169,14 @@ export async function GetCategories() {
     }
     categories.get(categorySlug)!.posts.push({
       title: post.data.title,
-      id: `/posts/${IdToSlug(post.id)}`,
+      id: post.id,
       date: new Date(post.data.published),
       tags: post.data.tags,
     });
+  });
+
+  categories.forEach((value) => {
+    value.posts.sort((a, b) => (a.date > b.date ? -1 : 1));
   });
 
   return categories;
