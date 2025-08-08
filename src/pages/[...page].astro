@@ -19,8 +19,8 @@ const { page } = Astro.props;
 ---
 
 <Main>
-  <div class="space-y-8">
-    <div class="w-full space-y-4">
+  <div id="posts-wrapper" class="space-y-8">
+    <div class="space-y-4">
       {
         page.data.map((entry, index) => (
           <div
@@ -43,13 +43,28 @@ const { page } = Astro.props;
         ))
       }
     </div>
-    <Pagination
-      class="onload-animation"
-      lastPage={page.lastPage}
-      current={page.currentPage}
-      prevURL={page.url.prev}
-      nextURL={page.url.next}
-      style={`animation-delay: calc(var(--onload-animation-delay) + ${page.data.length + 1} * var(--onload-animation-interval));`}
-    />
   </div>
+
+<div id="pagination-wrapper" class="mt-8 flex justify-center">
+  <Pagination
+    class="onload-animation"
+    lastPage={page.lastPage}
+    current={page.currentPage}
+    prevURL={page.url.prev}
+    nextURL={page.url.next}
+    style={`animation-delay: calc(var(--onload-animation-delay) + ${page.data.length + 1} * var(--onload-animation-interval));`}
+  />
+</div>
 </Main>
+
+<style>
+  #pagination-wrapper {
+    transform: translateX(-120px);
+  }
+
+  @media (max-width: 62rem) {
+    #pagination-wrapper {
+      transform: none;
+    }
+  }
+</style>
