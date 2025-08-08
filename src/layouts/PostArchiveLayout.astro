@@ -1,20 +1,37 @@
 ---
-// Component Imports
+// src/layouts/PostArchiveLayout.astro
+
 import Main from "../layouts/MainLayout.astro";
 import ArchiveYearTitle from "../components/misc/ArchiveYearTitle.astro";
 import ArchivePost from "../components/misc/ArchivePost.astro";
+import Pagination from "../components/controllers/Pagination.astro";
 
 import { type Archive } from "../utils/content";
+import type { Page } from "astro";
 
 export interface Props {
-  archiveMap: Map<number, Array<Archive>>;
+  page?: Page<Archive>;
+  posts?: Archive[]; 
   title?: string;
   subTitle?: string;
   bannerImage?: string;
   slug?: string;
+  baseURL?: string; 
 }
 
-const { archiveMap, title, subTitle, bannerImage, slug } = Astro.props;
+const { page, posts, title, subTitle, bannerImage, slug, baseURL } = Astro.props; 
+
+
+const postsToRender = page ? page.data : posts || [];
+
+const archiveMap = new Map<number, Archive[]>();
+
+postsToRender.forEach((post) => {
+  const year = post.date.getFullYear();
+  const postsForYear = archiveMap.get(year) || [];
+  postsForYear.push(post);
+  archiveMap.set(year, postsForYear);
+});
 ---
 
 <Main title={title} subTitle={subTitle} bannerImage={bannerImage} slug={slug}>
@@ -43,10 +60,32 @@ const { archiveMap, title, subTitle, bannerImage, slug } = Astro.props;
         ))
     }
   </div>
+
+  {page && (
+    <div id="pagination-wrapper" class="mt-8 flex justify-center">
+      <Pagination
+        lastPage={page.lastPage}
+        current={page.currentPage}
+        prevURL={page.url.prev}
+        nextURL={page.url.next}
+        baseURL={baseURL}
+      />
+    </div>
+  )}
 </Main>
 
 <style>
   .archives {
     @apply mx-3 flex flex-col rounded-2xl bg-[var(--card-color)] px-10 py-5 lg:mx-0 lg:p-10;
+  }
+  
+  #pagination-wrapper {
+    transform: translateX(-120px);
+  }
+
+  @media (max-width: 62rem) {
+    #pagination-wrapper {
+      transform: none;
+    }
   }
 </style>
