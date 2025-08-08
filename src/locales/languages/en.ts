@@ -9,7 +9,7 @@ export const en: Translation = {
   [key.nav_bar_home]: "Home",
   [key.nav_bar_archive]: "Archive",
   [key.nav_bar_about]: "About",
-  [key.nav_bar_github]: "GitHub",
+  [key.nav_bar_github]: "Explore",
   [key.nav_bar_search_placeholder]: "Search",
 
   [key.post_card_words]: "Words",
