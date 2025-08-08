@@ -11,105 +11,92 @@ const navCount = YukinaConfig.navigators.length;
 ---
 
 <nav class="nav" id="nav">
-  <div
-    class="relative flex h-[4rem] w-full items-center justify-between overflow-visible lg:h-[4.5rem]"
-  >
-    <div class="brand after:content-['']">
-      <button
-        id="menu-switcher"
-        type="button"
-        class="h-[40px] w-[44px] content-center"
-      >
-        <Icon
-          id="menu-icon-closed"
-          size={24}
-          name="line-md:close-to-menu-transition"
-          class="mx-auto hidden"
-        />
-        <Icon
-          id="menu-icon-opened"
-          size={24}
-          name="line-md:menu-to-close-transition"
-          class="mx-auto hidden"
-        />
-      </button>
-      <a class="title" href="/">
-        {YukinaConfig.brandTitle}
-      </a>
-    </div>
-    <a class="brand-lg" href="/">
-      <div class="title space-x-2">
-        <Icon name="heroicons:home" size={32} />
-        <p>{YukinaConfig.brandTitle}</p>
-      </div>
-    </a>
-    <div class="menu">
-      {
-        YukinaConfig.navigators.map((nav) => (
-          <a href={nav.href}>
-            <p>{i18n(nav.nameKey)}</p>
-          </a>
-        ))
-      }
-    </div>
-    <div class="toolbar">
-      <div class="lg:hidden">
-        <MobileSearchBar client:only="svelte" />
-      </div>
-      <div class="hidden lg:block">
-        <SearchBar client:only="svelte" />
-      </div>
-      <div class="theme">
-        <button type="button" id="theme-switcher">
+  <div class="nav-container">
+    <div
+      class="relative flex h-[4rem] w-full items-center justify-between overflow-visible lg:h-[4.5rem]"
+    >
+      <div class="brand after:content-['']">
+        <button
+          id="menu-switcher"
+          type="button"
+          class="h-[40px] w-[44px] content-center"
+        >
           <Icon
-            id="theme-icon-light"
-            name="line-md:moon-alt-to-sunny-outline-loop-transition"
+            id="menu-icon-closed"
             size={24}
-            class="hidden"
+            name="line-md:close-to-menu-transition"
+            class="mx-auto hidden"
           />
           <Icon
-            id="theme-icon-dark"
-            name="line-md:sunny-outline-to-moon-alt-loop-transition"
+            id="menu-icon-opened"
             size={24}
-            class="hidden"
+            name="line-md:menu-to-close-transition"
+            class="mx-auto hidden"
           />
         </button>
+        <a class="title" href="/">
+          {YukinaConfig.brandTitle}
+        </a>
+      </div>
+      <a class="brand-lg" href="/">
+        <div class="title space-x-2">
+          <Icon name="heroicons:home" size={32} />
+          <p>{YukinaConfig.brandTitle}</p>
+        </div>
+      </a>
+      <div class="menu">
+        {
+          YukinaConfig.navigators.map((nav) => (
+            <a href={nav.href}>
+              <p>{i18n(nav.nameKey)}</p>
+            </a>
+          ))
+        }
+      </div>
+      <div class="toolbar">
+        <div class="lg:hidden">
+          <MobileSearchBar client:only="svelte" />
+        </div>
+        <div class="hidden lg:block">
+          <SearchBar client:only="svelte" />
+        </div>
       </div>
     </div>
-  </div>
-  <div id="mobile-menu" class="px-3 transition-all">
-    <ul
-      id="mobile-menu-nav"
-      class="mobile-menu-nav mobile-menu-nav-closed flex flex-col space-y-6 overflow-hidden text-xl font-medium text-[var(--text-color)] transition-all duration-300"
-    >
-      {
-        YukinaConfig.navigators.map((nav) => (
-          <li class="mt-1">
-            <a href={nav.href} class="mobile-nav-item">
-              <div class="flex flex-row items-center space-x-2">
-                <span class="text-[var(--primary-color)]">·</span>
-                <span>{i18n(nav.nameKey)}</span>
-              </div>
-              <Icon
-                name="cuida:caret-right-outline"
-                class="text-[var(--text-color-lighten)]"
-              />
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <div id="mobile-menu" class="px-3 transition-all">
+      <ul
+        id="mobile-menu-nav"
+        class="mobile-menu-nav mobile-menu-nav-closed flex flex-col space-y-6 overflow-hidden text-xl font-medium text-[var(--text-color)] transition-all duration-300"
+      >
+        {
+          YukinaConfig.navigators.map((nav) => (
+            <li class="mt-1">
+              <a href={nav.href} class="mobile-nav-item">
+                <div class="flex flex-row items-center space-x-2">
+                  <span class="text-[var(--primary-color)]">·</span>
+                  <span>{i18n(nav.nameKey)}</span>
+                </div>
+                <Icon
+                  name="cuida:caret-right-outline"
+                  class="text-[var(--text-color-lighten)]"
+                />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
   </div>
 </nav>
 
 <style define:vars={{ navCount }}>
   .nav {
-    @apply fixed left-1/2 z-10 flex w-full select-none flex-col justify-end rounded-b-xl bg-[var(--card-color-transparent)] px-2.5 opacity-0 backdrop-blur-md transition-all;
-    @apply lg:w-[var(--page-width-lg)] lg:rounded-b-2xl;
-    @apply xl:w-[var(--page-width-xl)];
-    transform: translateX(-50%) translateY(-5rem);
+    @apply fixed left-0 right-0 top-0 z-10 w-full select-none bg-[var(--card-color-transparent)] opacity-0 backdrop-blur-md transition-all;
     animation: 300ms nav-onload-animation;
     animation-fill-mode: forwards;
+  }
+
+  .nav-container {
+    @apply mx-auto w-full md:min-w-[95%] md:max-w-[95%] lg:min-w-[90%] lg:max-w-[90%] xl:max-w-7xl;
   }
 
   .brand {
@@ -193,11 +180,11 @@ const navCount = YukinaConfig.navigators.length;
 
   @keyframes nav-onload-animation {
     0% {
-      transform: translateY(-5rem) translateX(-50%);
+      transform: translateY(-5rem);
       opacity: 0;
     }
     100% {
-      transform: translateY(0) translateX(-50%);
+      transform: translateY(0);
       opacity: 1;
     }
   }
@@ -272,61 +259,61 @@ const navCount = YukinaConfig.navigators.length;
 
   // Theme switcher
   // Get elements
-  const themeSwitcher = document.getElementById(
-    "theme-switcher",
-  ) as HTMLButtonElement;
-  let themeIconLight = document.getElementById(
-    "theme-icon-light",
-  ) as any as SVGElement;
-  let themeIconDark = document.getElementById(
-    "theme-icon-dark",
-  ) as any as SVGElement;
+  // const themeSwitcher = document.getElementById(
+  //   "theme-switcher",
+  // ) as HTMLButtonElement;
+  // let themeIconLight = document.getElementById(
+  //   "theme-icon-light",
+  // ) as any as SVGElement;
+  // let themeIconDark = document.getElementById(
+  //   "theme-icon-dark",
+  // ) as any as SVGElement;
 
-  // Record the current theme
-  let currentTheme = localStorage.getItem("theme") || "light";
+  // // Record the current theme
+  // let currentTheme = localStorage.getItem("theme") || "light";
 
-  // Set theme
-  const setTheme = (theme: string) => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-    currentTheme = theme;
+  // // Set theme
+  // const setTheme = (theme: string) => {
+  //   document.documentElement.setAttribute("data-theme", theme);
+  //   localStorage.setItem("theme", theme);
+  //   currentTheme = theme;
 
-    // Show/hide icons for different themes
-    themeIconDark.style.display = theme === "dark" ? "block" : "none";
-    themeIconLight.style.display = theme === "light" ? "block" : "none";
+  //   // Show/hide icons for different themes
+  //   themeIconDark.style.display = theme === "dark" ? "block" : "none";
+  //   themeIconLight.style.display = theme === "light" ? "block" : "none";
 
-    // If the theme is dark, update the dark icon; otherwise, update the light icon
-    if (theme === "dark") themeIconDark = reinitializeIcon(themeIconDark);
-    else themeIconLight = reinitializeIcon(themeIconLight);
+  //   // If the theme is dark, update the dark icon; otherwise, update the light icon
+  //   if (theme === "dark") themeIconDark = reinitializeIcon(themeIconDark);
+  //   else themeIconLight = reinitializeIcon(themeIconLight);
 
-    // Toggle dark class
-    document.documentElement.classList.toggle("dark", theme === "dark");
-  };
+  //   // Toggle dark class
+  //   document.documentElement.classList.toggle("dark", theme === "dark");
+  // };
 
-  // Click to switch theme
-  themeSwitcher.addEventListener("click", () => {
-    setTheme(currentTheme === "light" ? "dark" : "light");
-  });
+  // // Click to switch theme
+  // themeSwitcher.addEventListener("click", () => {
+  //   setTheme(currentTheme === "light" ? "dark" : "light");
+  // });
 
   // Initialize
   document.addEventListener("DOMContentLoaded", () => {
-    setTheme(currentTheme);
+    // setTheme(currentTheme);
     menuIconClosed.style.display = "block";
   });
 
   // fold nav bar when scroll down
-  const navBarElement = document.getElementById("nav");
-  const bannerElement = document.getElementById("banner");
-  const bannerHeight = bannerElement!.offsetHeight - 50;
-  let lastYPos = 0;
-  window.addEventListener("scroll", () => {
-    if (bannerHeight < window.scrollY && window.scrollY > lastYPos) {
-      navBarElement!.style.top = "-72px";
-    } else {
-      navBarElement!.style.top = "0";
-    }
-    lastYPos = window.scrollY;
-  });
+  // const navBarElement = document.getElementById("nav");
+  // const bannerElement = document.getElementById("banner");
+  // const bannerHeight = bannerElement!.offsetHeight - 50;
+  // let lastYPos = 0;
+  // window.addEventListener("scroll", () => {
+  //   if (bannerHeight < window.scrollY && window.scrollY > lastYPos) {
+  //     navBarElement!.style.top = "-72px";
+  //   } else {
+  //     navBarElement!.style.top = "0";
+  //   }
+  //   lastYPos = window.scrollY;
+  // });
 </script>
 
 <script is:inline>
