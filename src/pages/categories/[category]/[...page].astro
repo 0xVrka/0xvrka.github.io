@@ -1,0 +1,35 @@
+---
+// src/pages/categories/[...category].astro
+
+import PostArchiveLayout from "../../../layouts/PostArchiveLayout.astro";
+import I18nKeys from "../../../locales/keys";
+import { i18n } from "../../../locales/translation";
+import { GetCategories } from "../../../utils/content";
+import type { GetStaticPathsOptions } from "astro";
+
+export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
+  const categories = await GetCategories();
+  const paths = [];
+  for (const [key, value] of categories.entries()) {
+    paths.push(
+      ...paginate(value.posts, {
+        params: { category: key },
+        props: { categoryName: value.name },
+        pageSize: 20,
+      }),
+    );
+  }
+
+  return paths;
+}
+
+const { page, categoryName } = Astro.props;
+const { category } = Astro.params;
+---
+
+<PostArchiveLayout
+  page={page}
+  title={categoryName}
+  subTitle={i18n(I18nKeys.pages_categories_archive)}
+  baseURL={`/categories/${category}`}
+/>
