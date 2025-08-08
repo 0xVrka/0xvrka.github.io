@@ -8,12 +8,16 @@ export interface Props {
 const { name, link } = Astro.props;
 ---
 
-<a href={link} target="_blank">
+<a href={link} target="_blank" rel="noopener noreferrer" class="group">
   <div
-    class="flex h-10 w-10 flex-col justify-center rounded-lg transition-all hover:brightness-75 dark:hover:brightness-125"
+    class="flex h-10 w-10 flex-col justify-center rounded-lg transition-all group-hover:-translate-y-1 group-hover:scale-110"
   >
     <div class="flex flex-row justify-center">
-      <Icon name={name} size={24} class="text-[var(--primary-color)]" />
+      <Icon
+        name={name}
+        size={24}
+        class="text-[var(--text-color-lighten)] transition-colors group-hover:text-[var(--primary-color)]"
+      />
     </div>
   </div>
 </a>
