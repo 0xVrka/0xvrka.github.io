@@ -2,70 +2,77 @@
 import Base from "./BaseLayout.astro";
 import NavBar from "../components/NavBar.astro";
 import Banner from "../components/Banner.astro";
-
-import YukinaConfig from "../../yukina.config";
-import Footer from "../components/Footer.astro";
 import SideBar from "../components/SideBar.astro";
+import Footer from "../components/Footer.astro";
 import defaultBanner from "../assets/images/banner.jpg";
+import type { MarkdownHeading, ImageMetadata } from "astro";
+import YukinaConfig from "../../yukina.config";
 
 export interface Props {
   title?: string;
   subTitle?: string;
   bannerImage?: string | ImageMetadata;
   slug?: string;
+  headings?: MarkdownHeading[];
 }
 
-const props = Astro.props;
+const {
+  title,
+  subTitle,
+  bannerImage,
+  slug,
+  headings = [],
+} = Astro.props;
+
+const hasTOC = headings.length > 0;
 ---
 
 <Base>
   <NavBar />
 
-  {
-    YukinaConfig.bannerStyle == "LOOP" && (
-      <Banner
-        title={props.title}
-        subTitle={props.subTitle}
-        bannerImage={props.bannerImage ?? defaultBanner}
-        slug={props.slug}
-      />
-    )
-  }
+  {YukinaConfig.bannerStyle === "LOOP" && (
+    <Banner
+      title={title}
+      subTitle={subTitle}
+      bannerImage={bannerImage ?? defaultBanner}
+      slug={slug}
+    />
+  )}
 
   <div class="main-container mb-10">
     <div class="flex flex-row items-start lg:space-x-4">
-
-      <div class="side-bar">
-        <SideBar />
-      </div>
+      <aside
+        id="sidebar"
+        class={`hidden lg:block side-bar ${hasTOC ? "sticky top-0 self-start flex-shrink-0 w-64" : ""}`}
+      >
+        <SideBar headings={headings} />
+      </aside>
 
       <div class="transition-leaving flex-1 space-y-8 min-w-0">
-        <main class="content onload-animation">
+        <main id="main" class="content onload-animation">
           <slot />
         </main>
       </div>
-
     </div>
-    </div>
-
-    <Footer class="mt-8" />
   </div>
+
+  <Footer class="mt-8" />
 </Base>
 
 <style>
   .main-container {
-    @apply w-full md:min-w-[95%] md:max-w-[95%] lg:min-w-[90%] lg:max-w-[90%] xl:max-w-7xl;
-    @apply md:mx-auto;
+    @apply w-full
+           md:min-w-[95%] md:max-w-[95%]
+           lg:min-w-[90%] lg:max-w-[90%]
+           xl:max-w-7xl md:mx-auto;
   }
-
   .side-bar {
-    @apply hidden min-w-[2px] lg:block;
+    @apply min-w-[2px];
   }
-
   .content {
     @apply w-full;
   }
-  /* * {
+ /* * {
   border: 1px solid red !important;
 } */
 </style>
