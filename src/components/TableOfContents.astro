@@ -1,0 +1,83 @@
+---
+// src/components/TableOfContents.astro
+import type { MarkdownHeading } from 'astro';
+
+export interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+const filteredHeadings = headings.filter(
+  (h) => h.depth >= 1 && h.depth <= 3
+);
+---
+<div
+  class="
+    toc
+    sticky top-[4rem]          /* 4rem = your navbar height */
+    self-start
+    w-full
+    flex flex-col             /* column flex so we can split header vs list */
+    h-[calc(100vh-4rem)]      /* fill viewport minus navbar */
+  "
+>
+  <h3 class="toc-title">Table Of Contents</h3>
+  <ul
+    class="
+      toc-list
+      mt-2
+      flex-1                  /* take all remaining space */
+      overflow-y-auto        /* only this UL scrolls */
+    "
+  >
+    {filteredHeadings.map(({ depth, slug, text }) => (
+      <li class={`depth-${depth}`}>
+        <a href={`#${slug}`}>{text}</a>
+      </li>
+    ))}
+  </ul>
+</div>
+
+<style>
+
+  .toc {
+    @apply p-4 rounded-xl bg-[var(--card-color)];
+  }
+  .toc-title {
+    @apply text-lg font-bold mb-2 text-[var(--text-color)];
+    font-family: var(--title-font);
+    text-align: center;
+  }
+  .toc-list {
+    @apply space-y-2;
+  }
+  .toc-list a {
+    @apply block text-[var(--text-color-lighten)]
+           transition-colors hover:text-[var(--primary-color)];
+  }
+
+  .toc-list {
+  -ms-overflow-style: none;
+  scrollbar-width: none;     
+  }
+
+  .toc-list::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
+
+  .depth-1 {
+    @apply ml-0;
+  }
+  .depth-2 {
+    @apply ml-2;
+  }
+  .depth-3 {
+    @apply ml-4;
+  }
+
+  :global(#sidebar.bg-black) .toc {
+  background: transparent;
+}
+</style>
