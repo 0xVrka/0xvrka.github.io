@@ -1,17 +1,18 @@
 ---
+// src/layouts/BaseLayout.astro
+import tocInitUrl from "../utils/toc-init.ts?url";
 import YukinaConfig from "../../yukina.config";
-import BaseHead from "../components/BaseHead.astro";
+import BaseHead      from "../components/BaseHead.astro";
 ---
-
 <html lang={YukinaConfig.locale}>
-  <BaseHead />
-  <body class="">
+  <head>
+    <BaseHead />
+    <script type="module" src={tocInitUrl}></script>
+    <style>
+      body { @apply bg-[var(--background-color)]; }
+    </style>
+  </head>
+  <body>
     <slot />
   </body>
 </html>
-
-<style>
-  body {
-    @apply bg-[var(--background-color)];
-  }
-</style>
