@@ -12,72 +12,59 @@ const filteredHeadings = headings.filter(
 );
 ---
 <div
-  class="
-    toc
-    sticky top-[4rem]          /* 4rem = your navbar height */
-    self-start
-    w-full
-    flex flex-col             /* column flex so we can split header vs list */
-    h-[calc(100vh-4rem)]      /* fill viewport minus navbar */
-  "
+  class="toc
+         sticky top-[4rem]           
+         self-start w-full
+         flex flex-col
+         h-[calc(100vh-4rem-4rem)]  
+         p-4 rounded-xl
+         bg-[var(--card-color)]"
 >
   <h3 class="toc-title">Table Of Contents</h3>
+
   <ul
-    class="
-      toc-list
-      mt-2
-      flex-1                  /* take all remaining space */
-      overflow-y-auto        /* only this UL scrolls */
-    "
+    class="toc-list
+           mt-2 flex-1
+           overflow-y-auto no-scrollbar
+           space-y-2
+           "
   >
     {filteredHeadings.map(({ depth, slug, text }) => (
       <li class={`depth-${depth}`}>
-        <a href={`#${slug}`}>{text}</a>
+        <a href={`#${slug}`} class="toc-link">{text}</a>
       </li>
     ))}
   </ul>
 </div>
 
 <style>
-
-  .toc {
-    @apply p-4 rounded-xl bg-[var(--card-color)];
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
-  .toc-title {
-    @apply text-lg font-bold mb-2 text-[var(--text-color)];
-    font-family: var(--title-font);
-    text-align: center;
-  }
-  .toc-list {
-    @apply space-y-2;
-  }
-  .toc-list a {
-    @apply block text-[var(--text-color-lighten)]
-           transition-colors hover:text-[var(--primary-color)];
-  }
-
-  .toc-list {
-  -ms-overflow-style: none;
-  scrollbar-width: none;     
-  }
-
-  .toc-list::-webkit-scrollbar {
-    width: 0;
-    height: 0;
+  .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
 
-  .depth-1 {
-    @apply ml-0;
+  .toc { @apply p-4 rounded-xl bg-[var(--card-color)]; }
+  .toc-title {
+    @apply text-lg font-bold text-[var(--text-color)];
+    font-family: var(--title-font);
+    text-align: center;
   }
-  .depth-2 {
-    @apply ml-2;
+  .toc-list { @apply space-y-2; }
+  .toc-link {
+    @apply block text-[var(--text-color-lighten)] transition-colors;
   }
-  .depth-3 {
-    @apply ml-4;
+  .toc-link:hover { @apply text-[var(--primary-color)]; }
+  .toc-link.active {
+    @apply text-white font-bold border-l-4 border-white pl-2;
   }
+  .depth-1 { @apply ml-0; }
+  .depth-2 { @apply ml-2; }
+  .depth-3 { @apply ml-4; }
 
   :global(#sidebar.bg-black) .toc {
-  background: transparent;
-}
+    background: transparent;
+  }
 </style>
