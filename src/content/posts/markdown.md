@@ -5,7 +5,7 @@ description: A simple example of a Markdown blog post.
 tags: [Markdown, Blogging]
 category: Examples
 draft: false
-cover: '../../assets/images/banner.jpg'
+cover: '../../assets/images/wolf-prey-blood.png'
 ---
 
 # An h1 header

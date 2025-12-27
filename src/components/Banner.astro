@@ -8,8 +8,9 @@ export interface Props {
   subTitle?: string;
   bannerImage?: string | ImageMetadata;
   slug?: string;
+  isPost?: boolean;
 }
-const { title, subTitle, bannerImage, slug } = Astro.props;
+const { title, subTitle, bannerImage, slug, isPost = false } = Astro.props;
 
 const hasTitle = title !== undefined || subTitle !== undefined;
 const hasHeaderImg = bannerImage !== undefined || slug !== undefined;
@@ -37,16 +38,19 @@ const carouselAnimationTime = `${carouselImgsList.length * 6}s`;
     }
     {
       hasHeaderImg && (
-        <div class="cover">
-          <Image
-            src={bannerImage}
-            alt={title ?? YukinaConfig.title}
-            widths={[400, 800, 1200, 1600, 2400]}
-            sizes="(max-width: 768px) 100vw, 1264px"
-            loading="eager"
-            class="item"
-          />
-        </div>
+      <div class="cover">
+        <Image
+          src={bannerImage}
+          alt={title ?? YukinaConfig.title}
+          widths={[400, 800, 1200, 1600, 2400]}
+          sizes="(max-width: 768px) 100vw, 1264px"
+          loading="eager"
+          class:list={[
+            "item", 
+            { "object-[center_80%]": isPost }
+          ]}
+        />
+      </div>
       )
     }
     <div class="relative h-[95%] w-full">

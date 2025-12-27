@@ -8,6 +8,7 @@ licenseName: "Unlicensed"
 author: emn178
 sourceLink: "https://github.com/emn178/markdown"
 draft: false
+cover: '../../assets/images/wolf-step.png'
 ---
 
 # Markdown Tutorial

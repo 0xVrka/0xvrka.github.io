@@ -1,7 +1,7 @@
 import I18nKeys from "./src/locales/keys";
 import type { Configuration } from "./src/types/config";
-import homeBanner from "./src/assets/images/banner.jpg";
-// import avatar from "./src/assets/images/vrka.png";
+import homeBanner from "./src/assets/images/homeBanner.jpg";
+import avatar from "./src/assets/images/0xvrka.jpg";
 
 
 const YukinaConfig: Configuration = {
@@ -35,8 +35,8 @@ const YukinaConfig: Configuration = {
   ],
 
   username: "0xVṛka",
-  sign: "Security Enthusiast",
-  avatarUrl: 'https://s2.loli.net/2025/01/25/FPpTrQSezM8ivbl.webp',
+  sign: "Security Sheperd 𖤠",
+  avatarUrl: avatar,
   socialLinks: [
   {
     icon: "line-md:github-loop",
