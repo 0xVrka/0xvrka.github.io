@@ -70,6 +70,37 @@ const { class: className } = Astro.props;
     observer.observe(document.body, { childList: true, subtree: true });
   }
 </script>
+
+
+<script>
+  import katex from 'katex';
+  import 'katex/dist/katex.min.css';
+  function renderMathInHeaders() {
+    const headerCodes = document.querySelectorAll('.prose :where(h1,h2,h3,h4,h5,h6) code');
+
+    headerCodes.forEach((codeBlock) => {
+      const text = codeBlock.textContent || "";
+      if (text.startsWith('$') && text.endsWith('$')) {
+        const math = text.slice(1, -1);
+        try {
+          const span = document.createElement('span');
+          katex.render(math, span, {
+            throwOnError: false,
+            displayMode: false
+          });
+          
+          codeBlock.replaceWith(span);
+        } catch (e) {
+          console.error("KaTeX error:", e);
+        }
+      }
+    });
+  }
+  renderMathInHeaders();
+  document.addEventListener('DOMContentLoaded', renderMathInHeaders);
+  document.addEventListener('astro:page-load', renderMathInHeaders);
+</script>
+
 <style is:inline>
 
   /* .prose iframe {
@@ -141,5 +172,18 @@ const { class: className } = Astro.props;
 
   .copy-btn.success .success-icon {
     opacity: 1;
+  }
+
+  .prose :where(h1, h2, h3, h4, h5, h6) code {
+    background-color: transparent !important;
+    color: inherit !important;
+    font-weight: inherit !important;
+    padding: 0 !important;
+    border: none !important;
+    font-family: inherit !important;
+  }
+  .prose :where(h1, h2, h3, h4, h5, h6) code::before,
+  .prose :where(h1, h2, h3, h4, h5, h6) code::after {
+    content: none !important;
   }
 </style>
