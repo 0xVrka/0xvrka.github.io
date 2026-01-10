@@ -1,5 +1,5 @@
-# Special thanks to:
+## About Me
 
-- [Hexo Shoka theme](https://github.com/amehime/hexo-theme-shoka) for providing design inspiration
+I come from a background in digital forensics and CTFs, where I spent a lot of time analyzing logs and competing in national and international events.
 
-- [Astro Fuwari template](https://github.com/saicaca/fuwari) for providing the main design concept and part of the implementation
+Currently, my focus is on smart contract auditing, with specific interests in AMM protocols and DLT architecture. I use this blog to document my research, technical notes, and the things I learn while digging through the code.
