@@ -7,7 +7,7 @@ import avatar from "./src/assets/images/0xvrka.jpg";
 const YukinaConfig: Configuration = {
   title: "",
   subTitle: "",
-  brandTitle: "0xVṛka",
+  brandTitle: "0xVrka",
 
   description: "Demo Site",
 
@@ -34,7 +34,7 @@ const YukinaConfig: Configuration = {
     },
   ],
 
-  username: "0xVṛka",
+  username: "0xVrka",
   sign: "Security Sheperd 𖤠",
   avatarUrl: avatar,
   socialLinks: [
