@@ -1,7 +1,7 @@
 ---
 title: "Breaking the yETH Invariant"
 published: 2026-01-04
-description: The math behind the exploit.
+description: How the invariant was broken on Nov 30, 2025, leading to infinite minting.
 tags: [DeFi]
 category: Post-Mortem
 licenseName: "Unlicensed"
@@ -14,6 +14,12 @@ cover: '../../assets/images/wolf-step-c.png'
 You might have heard about the yETH exploit. Many people say this attack was sophisticated because you need a deep understanding of the invariant behind weighted stableswap pools to truly understand what happened in the single transaction that caused a multi-million-dollar loss.
 
 In this post, I want to explain step by step how the attacker logically broke the invariant. The goal is to make it understandable without being overwhelming, and to clearly show what the attacker wanted to achieve and how they managed to do it.
+
+**Important References:**
+- [Exploit Transaction](https://app.blocksec.com/explorer/tx/eth/0x53fe7ef190c34d810c50fb66f0fc65a1ceedc10309cf4b4013d64042a0331156)
+- [yETH Whitepaper](https://github.com/yearn/yETH/blob/main/whitepaper/derivation.pdf)
+- [StableSwap Invariant Logic](https://berkeley-defi.github.io/assets/material/StableSwap.pdf)
+- [Exploit Summary](https://github.com/0xkorin/yETH-exploit-summary/blob/master/summary.pdf)
 
 ## Brief overview of yETH
 On Ethereum, users can stake ETH to earn yield. However, the required stake is relatively large, so protocols like Lido emerged to solve this problem by pooling ETH from many users. In return, users receive liquid staking tokens (LSTs) that represent their staked ETH.
@@ -302,9 +308,189 @@ The attacker then makes a final add_liquidity call, adding minimal amounts acros
 
 Asset 7 is chosen because it has the lowest weight, allowing the attacker to adjust the value of $\pi$ with finer precision while barely affecting it overall. 
 
+## Under the Hood
+It is one thing to understand the math, but seeing the internal state collapse in real-time tells the full story. I instrumented the contract with debug logs and ran the exploit locally to capture exactly what happens inside the solver. The output below confirms the critical moments where the convergence fails and the invariant breaks.
+
+### 1. Convergence Instability (`$D_{m+1} < D_m$`) & Product Term Collapse (`$\pi \rightarrow 0$`)
+Here, we can see the Newton-Raphson solver struggling as the product term $\pi$ is manipulated down to zero.
+
+```text
+    │   ├─ emit DebugVal(tag: "remove liquidity :", val: 5)
+    │   ├─ emit DebugVal(tag: "add liquidity :", val: 5)
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 0)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 684908434204245837382 [6.849e20])
+    │   ├─ emit DebugVal(tag: "asset weight", val: 57646130206133453000000 [5.764e22])
+    │   ├─ emit DebugVal(tag: "Virtual Balance After", val: 2722795789717095953933 [2.722e21])
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 1)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 684906035678011109882 [6.849e20])
+    │   ├─ emit DebugVal(tag: "asset weight", val: 57646130206133453000000 [5.764e22])
+    │   ├─ emit DebugVal(tag: "Virtual Balance After", val: 2722786259230849981416 [2.722e21])
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 2)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 410441629717699458558 [4.104e20])
+    │   ├─ emit DebugVal(tag: "asset weight", val: 57646130206028595300000 [5.764e22])
+    │   ├─ emit DebugVal(tag: "Virtual Balance After", val: 1632471746540461454317 [1.632e21])
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 3)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 3532430177171936798 [3.532e18])
+    │   ├─ emit DebugVal(tag: "asset weight", val: 57646130206028595300000 [5.764e22])
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 4)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 410441628495198523353 [4.104e20])
+    │   ├─ emit DebugVal(tag: "asset weight", val: 57646130206028595300000 [5.764e22])
+    │   ├─ emit DebugVal(tag: "Virtual Balance After", val: 1632471745317960519112 [1.632e21])
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 5)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 549134391241242137316 [5.491e20])
+    │   ├─ emit DebugVal(tag: "asset weight", val: 57646130206185881850000 [5.764e22])
+    │   ├─ emit DebugVal(tag: "Virtual Balance After", val: 2187825559835234235400 [2.187e21])
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 6)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 655788662506859028 [6.557e17])
+    │   ├─ emit DebugVal(tag: "asset weight", val: 11529226041210961945000 [1.152e22])
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 7)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 629735375533480721 [6.297e17])
+    │   ├─ emit DebugVal(tag: "asset weight", val: 11529226041210961945000 [1.152e22])
+    │   ├─ emit DebugVal(tag: "l-s*r", val: 4905866498423088505346910921942316732319016 [4.905e42])
+    │   ├─ emit DebugVal(tag: "s value:", val: 2514337702656951993513 [2.514e21])
+    │   ├─ emit DebugVal(tag: "r value:", val: 3530246247551768 [3.53e15])
+    │   ├─ emit DebugVal(tag: "l value:", val: 4905875374654328387984700000000000000000000 [4.905e42])
+    │   ├─ emit DebugVal(tag: "d value:", val: 449000000000000000000 [4.49e20])
+    │   ├─ emit DebugVal(tag: "A value:", val: 450000000000000000000 [4.5e20])
+    │   ├─ emit DebugVal(tag: "Result of numerator:", val: 4905866498423088505346910921942316732319016 [4.905e42])
+    │   ├─ emit DebugVal(tag: "Guess total supply", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "prev total supply (s)", val: 2514337702656951993513 [2.514e21])
+    │   ├─ emit DebugVal(tag: "Numerator", val: 38572197766253986103007535765238691176 [3.857e37])
+    │   ├─ emit DebugVal(tag: "phi previous", val: 3530246247551768 [3.53e15])
+    │   ├─ emit DebugVal(tag: "phi after", val: 15340897813962681 [1.534e16])
+    │   ├─ emit DebugVal(tag: "Guess total supply", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "prev total supply (s)", val: 2514337702656951993513 [2.514e21])
+    │   ├─ emit DebugVal(tag: "Numerator", val: 167617809891428754714798791940369653367 [1.676e38])
+    │   ├─ emit DebugVal(tag: "phi previous", val: 15340897813962681 [1.534e16])
+    │   ├─ emit DebugVal(tag: "phi after", val: 66664795947777258 [6.666e16])
+    │   ├─ emit DebugVal(tag: "Guess total supply", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "prev total supply (s)", val: 2514337702656951993513 [2.514e21])
+    │   ├─ emit DebugVal(tag: "Numerator", val: 728393294130092909722226816352672303606 [7.283e38])
+    │   ├─ emit DebugVal(tag: "phi previous", val: 66664795947777258 [6.666e16])
+    │   ├─ emit DebugVal(tag: "phi after", val: 289695888249372724 [2.896e17])
+    │   ├─ emit DebugVal(tag: "Guess total supply", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "prev total supply (s)", val: 2514337702656951993513 [2.514e21])
+    │   ├─ emit DebugVal(tag: "Numerator", val: 3165276955219413177173868167453318467468 [3.165e39])
+    │   ├─ emit DebugVal(tag: "phi previous", val: 289695888249372724 [2.896e17])
+    │   ├─ emit DebugVal(tag: "phi after", val: 1258890940494827080 [1.258e18])
+    │   ├─ emit DebugVal(tag: "Guess total supply", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "prev total supply (s)", val: 2514337702656951993513 [2.514e21])
+    │   ├─ emit DebugVal(tag: "Numerator", val: 13754901759781527840720325239872192117560 [1.375e40])
+    │   ├─ emit DebugVal(tag: "phi previous", val: 1258890940494827080 [1.258e18])
+    │   ├─ emit DebugVal(tag: "phi after", val: 5470586447177100464 [5.47e18])
+    │   ├─ emit DebugVal(tag: "Guess total supply", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "prev total supply (s)", val: 2514337702656951993513 [2.514e21])
+    │   ├─ emit DebugVal(tag: "Numerator", val: 59772754516555737377334230326754254445648 [5.977e40])
+    │   ├─ emit DebugVal(tag: "phi previous", val: 5470586447177100464 [5.47e18])
+    │   ├─ emit DebugVal(tag: "phi after", val: 23772763083253553057 [2.377e19])
+    │   ├─ emit DebugVal(tag: "Guess total supply", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "prev total supply (s)", val: 2514337702656951993513 [2.514e21])
+    │   ├─ emit DebugVal(tag: "Numerator", val: 259746106871008404415708252387492752387599 [2.597e41])
+    │   ├─ emit DebugVal(tag: "phi previous", val: 23772763083253553057 [2.377e19])
+    │   ├─ emit DebugVal(tag: "phi after", val: 103305974609746888508 [1.033e20])
+    │   ├─ emit DebugVal(tag: "Guess total supply", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "prev total supply (s)", val: 2514337702656951993513 [2.514e21])
+    │   ├─ emit DebugVal(tag: "Numerator", val: 1128742360634528852966913445056652375332356 [1.128e42])
+    │   ├─ emit DebugVal(tag: "phi previous", val: 103305974609746888508 [1.033e20])
+    │   ├─ emit DebugVal(tag: "phi after", val: 448922338253037271569 [4.489e20])
+    │   ├─ emit DebugVal(tag: "l-s*r", val: 857424477639571851431090947373029963617 [8.574e38])
+    │   ├─ emit DebugVal(tag: "s value:", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "r value:", val: 448922338253037271569 [4.489e20])
+    │   ├─ emit DebugVal(tag: "l value:", val: 4905875374654328387984700000000000000000000 [4.905e42])
+    │   ├─ emit DebugVal(tag: "d value:", val: 449000000000000000000 [4.49e20])
+    │   ├─ emit DebugVal(tag: "A value:", val: 450000000000000000000 [4.5e20])
+    │   ├─ emit DebugVal(tag: "Result of numerator:", val: 857424477639571851431090947373029963617 [8.574e38])
+    │   ├─ emit DebugVal(tag: "Guess total supply", val: 1909631353317531963 [1.909e18])
+    │   ├─ emit DebugVal(tag: "prev total supply (s)", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "Numerator", val: 857276172332618412565774818410468659947 [8.572e38])
+    │   ├─ emit DebugVal(tag: "phi previous", val: 448922338253037271569 [4.489e20])
+    │   ├─ emit DebugVal(tag: "phi after", val: 78460553604765033 [7.846e16])
+    │   ├─ emit DebugVal(tag: "Guess total supply", val: 1909631353317531963 [1.909e18])
+    │   ├─ emit DebugVal(tag: "prev total supply (s)", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "Numerator", val: 149830733162310210819067416082249779 [1.498e35])
+    │   ├─ emit DebugVal(tag: "phi previous", val: 78460553604765033 [7.846e16])
+    │   ├─ emit DebugVal(tag: "phi after", val: 13712969811041 [1.371e13])
+    │   ├─ emit DebugVal(tag: "Guess total supply", val: 1909631353317531963 [1.909e18])
+    │   ├─ emit DebugVal(tag: "prev total supply (s)", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "Numerator", val: 26186717098260685391132587803483 [2.618e31])
+    │   ├─ emit DebugVal(tag: "phi previous", val: 13712969811041 [1.371e13])
+    │   ├─ emit DebugVal(tag: "phi after", val: 2396688939 [2.396e9])
+    │   ├─ emit DebugVal(tag: "Guess total supply", val: 1909631353317531963 [1.909e18])
+    │   ├─ emit DebugVal(tag: "prev total supply (s)", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "Numerator", val: 4576792342063729810501057257 [4.576e27])
+    │   ├─ emit DebugVal(tag: "phi previous", val: 2396688939 [2.396e9])
+    │   ├─ emit DebugVal(tag: "phi after", val: 418882 [4.188e5])
+    │   ├─ emit DebugVal(tag: "Guess total supply", val: 1909631353317531963 [1.909e18])
+    │   ├─ emit DebugVal(tag: "prev total supply (s)", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "Numerator", val: 799910200540354423725366 [7.999e23])
+    │   ├─ emit DebugVal(tag: "phi previous", val: 418882 [4.188e5])
+    │   ├─ emit DebugVal(tag: "phi after", val: 73)
+    │   ├─ emit DebugVal(tag: "guess < previous!", val: 1909631353317531963 [1.909e18])
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: Guess total supply", val: 1909631353317531963 [1.909e18])
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: prev total supply (s)", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: Numerator", val: 139403088792179833299 [1.394e20])
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: phi previous", val: 73)
+    │   ├─ emit DebugVal(tag: "phi after", val: 0)
+    │   ├─ emit DebugVal(tag: "guess < previous!", val: 1909631353317531963 [1.909e18])
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: Guess total supply", val: 1909631353317531963 [1.909e18])
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: prev total supply (s)", val: 10926206009850976626607 [1.092e22])
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: Numerator", val: 0)
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: phi previous", val: 0)
+    │   ├─ emit DebugVal(tag: "phi after", val: 0)
+```
+
+### 2. The Underflow Condition (`$s \cdot r > l$`)
+In the final step, the tiny addition to Asset 7 pushes the state such that $s \cdot r$ exceeds $l$, triggering the massive underflow.
+
+```text
+    │   ├─ emit DebugVal(tag: "add liquidity :", val: 13)
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 0)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 0)
+    │   ├─ emit DebugVal(tag: "asset weight", val: 57646130206133453000000 [5.764e22])
+    │   ├─ emit DebugVal(tag: "Virtual Balance After", val: 1)
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 1)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 0)
+    │   ├─ emit DebugVal(tag: "asset weight", val: 57646130206133453000000 [5.764e22])
+    │   ├─ emit DebugVal(tag: "Virtual Balance After", val: 1)
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 2)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 0)
+    │   ├─ emit DebugVal(tag: "asset weight", val: 57646130206028595300000 [5.764e22])
+    │   ├─ emit DebugVal(tag: "Virtual Balance After", val: 1)
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 3)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 0)
+    │   ├─ emit DebugVal(tag: "asset weight", val: 57646130206028595300000 [5.764e22])
+    │   ├─ emit DebugVal(tag: "Virtual Balance After", val: 1)
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 4)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 0)
+    │   ├─ emit DebugVal(tag: "asset weight", val: 57646130206028595300000 [5.764e22])
+    │   ├─ emit DebugVal(tag: "Virtual Balance After", val: 1)
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 5)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 0)
+    │   ├─ emit DebugVal(tag: "asset weight", val: 57646130206185881850000 [5.764e22])
+    │   ├─ emit DebugVal(tag: "Virtual Balance After", val: 1)
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 6)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 0)
+    │   ├─ emit DebugVal(tag: "asset weight", val: 11529226041210961945000 [1.152e22])
+    │   ├─ emit DebugVal(tag: "Virtual Balance After", val: 1)
+    │   ├─ emit DebugVal(tag: "Asset Index", val: 7)
+    │   ├─ emit DebugVal(tag: "Virtual Balance previous", val: 0)
+    │   ├─ emit DebugVal(tag: "asset weight", val: 11529226041210961945000 [1.152e22])
+    │   ├─ emit DebugVal(tag: "Virtual Balance After", val: 9)
+    │   ├─ emit DebugVal(tag: "constant sum or s value:", val: 16)
+    │   ├─ emit DebugVal(tag: "constant product or p value:", val: 912984419784149786092 [9.129e20])
+    │   ├─ emit DebugVal(tag: "l-s*r", val: 115792089237316195423570985008687907853269984665640564032049833291366733062464 [1.157e77])
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: s value:", val: 16)
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: r value:", val: 912984419784149786092 [9.129e20])
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: l value:", val: 7200000000000000000000 [7.2e21])
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: d value:", val: 449000000000000000000 [4.49e20])
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: A value:", val: 450000000000000000000 [4.5e20])
+    │   ├─ emit DebugVal(tag: "BUG CAUGHT: Result of underflow:", val: 115792089237316195423570985008687907853269984665640564032049833291366733062464 [1.157e77])
+```
+
 ## Conclusion
 This exploit demonstrates how unsafe gas optimizations, especially those involving arithmetic assumptions, can have catastrophic consequences. Even when the math is theoretically sound, implementation shortcuts can invalidate critical guarantees.
 
 If there is one takeaway from this incident, it is that invariants are only as strong as their weakest optimization.
 
 Thanks for reading, and I hope you learned something new.
+    
