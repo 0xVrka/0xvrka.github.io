@@ -29,17 +29,6 @@
 
   // add global scroll bar
   const setupScrollBar = () => {
-    OverlayScrollbars(
-      { target: document.body, cancel: { nativeScrollbarsOverlaid: true } },
-      {
-        scrollbars: {
-          theme: "scrollbar-base scrollbar-auto py-1",
-          autoHide: "move",
-        },
-      },
-    );
-    document.body.classList.remove("overflow-y-hidden");
-
     // add scrollbar for code blocks
     document.querySelectorAll("pre").forEach((ele) => {
       OverlayScrollbars(ele, {
