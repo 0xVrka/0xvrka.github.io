@@ -61,7 +61,7 @@
 
   document.addEventListener("DOMContentLoaded", setup);
   if (window.swup?.hooks) {
-    setup();
+    window.swup.hooks.on("content:replace", setup);
   } else {
     document.addEventListener("swup:enable", () => {
       window.swup.hooks.on("content:replace", setup);
