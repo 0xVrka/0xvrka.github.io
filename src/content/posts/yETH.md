@@ -5,7 +5,7 @@ description: How the invariant was broken on Nov 30, 2025, leading to infinite m
 tags: [DeFi]
 category: Post-Mortem
 licenseName: "Unlicensed"
-author: 0xVṛka
+author: 0xVrka
 sourceLink: "https://github.com/0xvrka/"
 draft: false
 cover: '../../assets/images/wolf-step-c.png'
@@ -309,7 +309,7 @@ The attacker then makes a final add_liquidity call, adding minimal amounts acros
 Asset 7 is chosen because it has the lowest weight, allowing the attacker to adjust the value of $\pi$ with finer precision while barely affecting it overall. 
 
 ## Under the Hood
-It is one thing to understand the math, but seeing the internal state collapse in real-time tells the full story. I instrumented the contract with debug logs and ran the exploit locally to capture exactly what happens inside the solver. The output below confirms the critical moments where the convergence fails and the invariant breaks.
+It is one thing to understand the math, but seeing the internal state collapse in real-time tells the full story. I instrumented the contract with debug logs and ran the exploit locally to capture exactly what happens inside the solver. The output below confirms the moments where the convergence fails and the invariant breaks.
 
 ### 1. Convergence Instability (`$D_{m+1} < D_m$`) & Product Term Collapse (`$\pi \rightarrow 0$`)
 Here, we can see the Newton-Raphson solver struggling as the product term $\pi$ is manipulated down to zero.
